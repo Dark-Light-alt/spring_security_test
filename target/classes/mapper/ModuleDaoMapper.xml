@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ModuleDao">
+
+    <delete id="remove">
+        delete from module where module_id = #{moduleId} or parent_id = #{moduleId}
+    </delete>
+
+    <resultMap id="moduleList" type="com.entity.Module" autoMapping="true">
+        <id column="moduleId" property="moduleId"></id>
+    </resultMap>
+
+    <select id="findAll" resultMap="moduleList">
+        SELECT
+            parentModule.module_id as moduleId,
+            parentModule.module_name as moduleName,
+            parentModule.module_level as moduleLevel,
+            parentModule.router_path as routerPath,
+            parentModule.router_name as routerName,
+            parentModule.component,
+            parentModule.parent_id as parentId,
+            parentModule.sort,
+            parentModule.isenable,
+            parentModule.icon,
+            (SELECT COUNT(1) FROM module where parent_id = parentModule.module_id) as childrenCount
+        FROM module parentModule
+        WHERE parentModule.parent_id = #{moduleId} ORDER BY SORT ASC
+    </select>
+
+    <update id="changeEnable">
+        update module set isenable = #{param2} where module_id = #{param1}
+    </update>
+</mapper>

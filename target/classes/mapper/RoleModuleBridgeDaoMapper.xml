@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.RoleModuleBridgeDao">
+
+    <resultMap id="moduleList" type="com.entity.Module" autoMapping="true">
+        <id column="moduleId" property="moduleId"></id>
+    </resultMap>
+
+    <select id="findAllModule" resultMap="moduleList">
+        SELECT
+            parentModule.module_id as moduleId,
+            parentModule.module_name as moduleName,
+            parentModule.module_level as moduleLevel,
+            parentModule.router_path as routerPath,
+            parentModule.router_name as routerName,
+            parentModule.component,
+            parentModule.parent_id as parentId,
+            parentModule.sort,
+            parentModule.isenable,
+            parentModule.icon,
+            (SELECT COUNT(1) FROM module where parent_id = parentModule.module_id) as childrenCount,
+            (SELECT COUNT(1) FROM role_module_bridge rm where rm.role_id = #{param1} AND rm.module_id = #{param2}) as isHave
+        FROM module parentModule
+        WHERE parentModule.parent_id = #{param2} ORDER BY SORT ASC
+    </select>
+
+    <select id="findCheckedModuleId" resultType="java.lang.String">
+        SELECT module_id FROM role_module_bridge WHERE role_id = #{roleId}
+    </select>
+
+    <insert id="assignModule">
+        INSERT ALL
+        <foreach collection="moduleIds" item="moduleId" close="SELECT 1 FROM dual">
+            INTO role_module_bridge(role_id,module_id) VALUES (#{param1},#{moduleId})
+        </foreach>
+    </insert>
+
+    <delete id="removeAll">
+        DELETE FROM role_module_bridge WHERE role_id = #{roleId}
+    </delete>
+</mapper>

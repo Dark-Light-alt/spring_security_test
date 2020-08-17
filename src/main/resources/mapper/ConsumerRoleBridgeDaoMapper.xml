@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ConsumerRoleBridgeDao">
+
+    <resultMap id="roles" type="java.util.Map">
+        <result column="roleId" property="roleId"></result>
+        <result column="roleName" property="roleName"></result>
+        <result column="roleLabel" property="roleLabel"></result>
+    </resultMap>
+
+    <select id="findRolesByConsumerId" resultMap="roles">
+        SELECT
+            role_id AS roleId,
+            role_name AS roleName,
+            role_label AS roleLabel
+        FROM role
+        WHERE role_id IN (SELECT role_id FROM consumer_role_bridge WHERE consumer_id = #{consumerId})
+    </select>
+
+    <select id="findRoles" resultMap="roles">
+        SELECT
+            role_id AS roleId,
+            role_name AS roleName,
+            role_label AS roleLabel
+        FROM role
+    </select>
+</mapper>
